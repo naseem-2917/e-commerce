@@ -33,12 +33,12 @@ export const getShoppingAssistantResponse = async (userQuery: string, cartContex
     }
 };
 
-export const summarizeProduct = async (productName: string, description: string) => {
+export const summarizeProduct = async (_productName: string, _description: string) => {
     // Note: If using the simplified worker I created, it might mock this or need expansion.
     // For now assuming the Node server is primary or Worker is expanded later.
     return "Summary feature requires backend update.";
 }
 
-export const analyzeReviews = async (reviews: string[]) => {
+export const analyzeReviews = async (_reviews: string[]) => {
     return "Analysis feature requires backend update.";
 }

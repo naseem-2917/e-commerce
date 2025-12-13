@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MOCK_PRODUCTS } from '../data/mock';
 import { ShoppingCart, Star, Truck, ShieldCheck, ArrowLeft, Sparkles, Brain } from 'lucide-react';

@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Product } from '../types';
 import { ShoppingCart, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';

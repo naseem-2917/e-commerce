@@ -1,11 +1,11 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+
+import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 
 export default function Cart() {
     const { items, removeItem, updateQuantity, total, clearCart } = useCart();
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     if (items.length === 0) {
         return (

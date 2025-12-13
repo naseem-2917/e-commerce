@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Sparkles, Minimize2, Maximize2 } from 'lucide-react';
+import { MessageSquare, X, Send, Sparkles } from 'lucide-react';
 import { getShoppingAssistantResponse } from '../services/gemini';
 import { useCart } from '../context/CartContext';
 import clsx from 'clsx';

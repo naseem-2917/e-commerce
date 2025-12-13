@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import ProductCard from '../components/ProductCard';
 import { Product } from '../types';
 import { Filter, SlidersHorizontal } from 'lucide-react';
@@ -48,7 +48,7 @@ const MOCK_PRODUCTS: Product[] = [
 ];
 
 export default function Shop() {
-    const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
+    const [products] = useState<Product[]>(MOCK_PRODUCTS);
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

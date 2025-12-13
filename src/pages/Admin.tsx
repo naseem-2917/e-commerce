@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
-import { Plus, Trash2, Package, ShoppingBag } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { MOCK_PRODUCTS } from '../data/mock';
 
 // Mock Orders

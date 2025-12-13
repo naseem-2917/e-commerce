@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import Layout from './components/Layout';
@@ -26,7 +26,7 @@ function App() {
     return (
         <AuthProvider>
             <CartProvider>
-                <Router>
+                <Router basename="/e-commerce">
                     <div className="relative">
                         <Routes>
                             <Route path="/login" element={<Login />} />

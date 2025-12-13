@@ -2,6 +2,7 @@
   "name": "ai-ecommerce-platform",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://naseem-2917.github.io/e-commerce/",
   "type": "module",
   "scripts": {
     "dev": "vite",
