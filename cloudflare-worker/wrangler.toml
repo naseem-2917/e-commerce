@@ -1,0 +1,9 @@
+name = "ecommerce-ai-proxy"
+main = "src/index.js"
+compatibility_date = "2023-10-25"
+
+# Variable bindings. These are arbitrary, plain text.
+# [vars]
+# MY_VARIABLE = "production_value"
+
+# Bind the Gemini API Key as a secret using `wrangler secret put GEMINI_API_KEY`
