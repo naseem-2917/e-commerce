@@ -1,44 +1,46 @@
 import { MOCK_PRODUCTS } from "../data/mock";
 
-// Use environment variable for API URL (Local Node or Cloudflare Worker)
-const API_Base = import.meta.env.VITE_AI_API_URL || 'http://localhost:3001/api';
+const API_URL = "https://wild-block-3a24.khannaseem1704.workers.dev";
 
-export const getShoppingAssistantResponse = async (userQuery: string, cartContext?: string) => {
+export const getShoppingAssistantResponse = async (userQuery: string, _cartContext?: string) => {
     try {
         const productContext = MOCK_PRODUCTS.map(p =>
-            `${p.name}: $${p.price} (${p.category}) - ${p.description}. Tags: ${p.tags?.join(', ')}`
+            `${p.name}: ₹${p.price} (${p.category}) - ${p.description}`
         ).join('\n');
 
-        // Cloudflare Worker expects POST to /ai/chat or similar.
-        // Our worker routing logic currently handles /chat suffix or root.
-        // If using the worker directly mapped to a domain, adjust path.
-        const endpoint = API_Base.includes('workers.dev') ? API_Base : `${API_Base}/chat`;
+        const fullPrompt = `
+        You are an AI shopping assistant.
+        Here is the product list:
+        ${productContext}
 
-        const response = await fetch(endpoint, {
+        User Question: ${userQuery}
+        Answer concisely.
+        `;
+
+        const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                query: userQuery,
-                productContext,
-                cartContext
-            })
+            body: JSON.stringify({ prompt: fullPrompt })
         });
 
-        if (!response.ok) throw new Error('Network response was not ok');
-        const data = await response.json();
-        return data.text;
+        if (response.ok) {
+            const data = await response.json();
+            return data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response from AI";
+        } else {
+            console.warn("Cloudflare worker error", response.status);
+            return "Sorry, I am facing some issues connecting to the server.";
+        }
+
     } catch (error) {
         console.error("Error calling AI Service:", error);
-        return "I'm having trouble connecting to my brain right now.";
+        return "I'm having trouble connecting to the AI service.";
     }
 };
 
 export const summarizeProduct = async (_productName: string, _description: string) => {
-    // Note: If using the simplified worker I created, it might mock this or need expansion.
-    // For now assuming the Node server is primary or Worker is expanded later.
-    return "Summary feature requires backend update.";
+    return "Summary feature currently unavailable.";
 }
 
 export const analyzeReviews = async (_reviews: string[]) => {
-    return "Analysis feature requires backend update.";
+    return "Analysis feature currently unavailable.";
 }

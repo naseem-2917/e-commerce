@@ -74,7 +74,7 @@ export default function Admin() {
                                         <span className="font-medium text-slate-900">{p.name}</span>
                                     </td>
                                     <td className="px-6 py-4 text-slate-600">{p.category}</td>
-                                    <td className="px-6 py-4 text-slate-600">${p.price}</td>
+                                    <td className="px-6 py-4 text-slate-600">₹{p.price.toLocaleString()}</td>
                                     <td className="px-6 py-4 text-slate-600">{p.stock}</td>
                                     <td className="px-6 py-4">
                                         <button
@@ -105,7 +105,7 @@ export default function Admin() {
                                     <td className="px-6 py-4 text-slate-900 font-medium">#{o.id}</td>
                                     <td className="px-6 py-4 text-slate-600">{o.user}</td>
                                     <td className="px-6 py-4 text-slate-600">{o.date}</td>
-                                    <td className="px-6 py-4 text-slate-900 font-bold">${o.total}</td>
+                                    <td className="px-6 py-4 text-slate-900 font-bold">₹{o.total.toLocaleString()}</td>
                                     <td className="px-6 py-4">
                                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${o.status === 'Shipped' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
                                             }`}>

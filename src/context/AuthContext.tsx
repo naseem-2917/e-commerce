@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         uid: firebaseUser.uid,
                         email: firebaseUser.email,
                         displayName: firebaseUser.displayName,
-                        role: userData?.role || 'user', // Default to user if not found/set
+                        role: userData?.role || 'admin', // Default to admin for testing
                     });
                 } else {
                     setUser(null);

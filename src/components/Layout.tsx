@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import Navbar from './Navbar';
+import Footer from './Footer';
 
 interface LayoutProps {
     children: ReactNode;
@@ -7,16 +8,12 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
     return (
-        <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 transition-colors duration-300">
             <Navbar />
             <main className="pt-16 min-h-[calc(100vh-4rem)]">
                 {children}
             </main>
-            <footer className="bg-white border-t border-slate-200 py-8">
-                <div className="max-w-7xl mx-auto px-4 text-center text-slate-500 text-sm">
-                    <p>© {new Date().getFullYear()} AI E-commerce Platform. Built for Hackathon.</p>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }
