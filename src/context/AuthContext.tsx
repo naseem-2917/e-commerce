@@ -24,25 +24,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-            if (firebaseUser) {
-                // Fetch additional user data from Firestore
-                const userDocRef = doc(db, 'users', firebaseUser.uid);
-                const userDoc = await getDoc(userDocRef);
-                const userData = userDoc.data();
+            try {
+                if (firebaseUser) {
+                    // Fetch additional user data from Firestore
+                    const userDocRef = doc(db, 'users', firebaseUser.uid);
+                    const userDoc = await getDoc(userDocRef);
+                    const userData = userDoc.data();
 
-                setUser({
-                    uid: firebaseUser.uid,
-                    email: firebaseUser.email,
-                    displayName: firebaseUser.displayName,
-                    role: userData?.role || 'user', // Default to user if not found/set
-                });
-            } else {
+                    setUser({
+                        uid: firebaseUser.uid,
+                        email: firebaseUser.email,
+                        displayName: firebaseUser.displayName,
+                        role: userData?.role || 'user', // Default to user if not found/set
+                    });
+                } else {
+                    setUser(null);
+                }
+            } catch (error) {
+                console.error("Auth Error:", error);
                 setUser(null);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         });
 
-        return () => unsubscribe();
+        // Safety timeout
+        const timer = setTimeout(() => setLoading(false), 2000);
+
+        return () => {
+            unsubscribe();
+            clearTimeout(timer);
+        }
     }, []);
 
     const signOut = async () => {
