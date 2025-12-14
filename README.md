@@ -1,131 +1,168 @@
-# 🛍️ AI-Powered E-commerce Platform
+# 🛒 NAS Digital - AI-Powered Digital Products Store
 
-![Project Status](https://img.shields.io/badge/status-active-success.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![React](https://img.shields.io/badge/React-18.3-61DAFB?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?logo=typescript)
+![Firebase](https://img.shields.io/badge/Firebase-10.8-FFCA28?logo=firebase)
+![Tailwind](https://img.shields.io/badge/Tailwind-3.4-06B6D4?logo=tailwindcss)
 
-> A modern, full-stack e-commerce application featuring a smart AI Shopping Assistant, powered by Google Gemini, React, and Firebase.
+> A modern AI-powered digital products marketplace built with React, Firebase, and Google Gemini AI.
 
 ## 🔗 Live Demo
-**[🚀 View Live Demo](https://naseem-2917.github.io/e-commerce/)**  
-*(Replace with your actual deployment URL)*
+
+**[🚀 Visit NAS Digital](https://e-commerce-83dcc.web.app/)**
 
 ---
 
 ## ✨ Features
 
-### 🛒 Core E-commerce
-- **Product Discovery:** Clean grid layout with filtering and sorting.
-- **Product Details:** Rich product pages with image galleries and specs.
-- **Shopping Cart:** Persistent cart management using local storage.
-- **Checkout Flow:** Simulated payment processing and order creation.
-- **Admin Dashboard:** Manage products and track orders.
+### 🤖 AI-Powered Features
+| Feature | Description |
+|---------|-------------|
+| **AI Product Explainer** | Click "🤖 Explain this Product" on any product page - AI explains the product in simple terms |
+| **AI Shopping Assistant** | Floating chatbot with quick actions: "Best for me?", "Find ebook", "Top sellers" |
+| **Smart Recommendations** | AI suggests products based on your preferences |
 
-### 🤖 AI Integration (Gemini Pro)
-- **💬 Smart Shopping Assistant:** A context-aware chatbot that helps users find products based on their needs (e.g., "Best laptop for coding").
-- **📝 AI Product Summaries:** One-click generation of concise product highlights.
-- **📊 Review Sentiment Analysis:** AI analyzes customer reviews to extract Pros/Cons and overall sentiment.
-- **🔒 Secure Proxy:** AI requests are secured via a custom backend (Node.js or Cloudflare Worker) to protect API keys.
+### 🛍️ E-commerce Features
+| Feature | Description |
+|---------|-------------|
+| **Digital Products** | UI Kits, Courses, Ebooks, Templates, Software |
+| **Instant Download** | Download purchased products immediately |
+| **Coupon System** | Apply discount codes at checkout |
+| **Order History** | View all purchases with download links |
+
+### 🎨 Modern UI/UX
+- Dark/Light mode toggle
+- Mobile-first responsive design
+- Bottom navigation for mobile
+- Smooth animations (Framer Motion)
+- Glassmorphism effects
+
+### 🔐 Authentication
+- Email/Password login & signup
+- Google One-Click login
+- Forgot Password (email reset)
+- User Profile page
+
+### 👨‍💼 Admin Panel
+- Products management (Add/Edit/Delete)
+- Orders view with customer details
+- Coupons management (Create/Toggle/Delete)
+- Secret code access: `nasadmin`
 
 ---
 
-## 🛠️ Tech Stack
+## 🏗️ Tech Stack
 
-- **Frontend:** React, TypeScript, Vite, Tailwind CSS, Framer Motion
-- **Backend (AI Proxy):** Node.js / Express OR Cloudflare Workers
-- **Database & Auth:** Firebase Firestore & Authentication
-- **AI Model:** Google Gemini Pro
+| Category | Technology |
+|----------|------------|
+| Frontend | React 18, TypeScript, Vite |
+| Styling | Tailwind CSS, Framer Motion |
+| Backend | Firebase (Auth, Firestore) |
+| AI | Google Gemini API |
+| Hosting | Firebase Hosting |
 
 ---
 
-## 🚀 Getting Started
+## 📁 Project Structure
 
-### Prerequisites
-- Node.js (v18+)
-- Firebase Project (with Auth & Firestore enabled)
-- Google Gemini API Key
+```
+src/
+├── components/       # Reusable UI components
+│   ├── Navbar.tsx
+│   ├── Footer.tsx
+│   ├── ChatBot.tsx
+│   ├── ProductCard.tsx
+│   └── BottomNavigation.tsx
+├── pages/            # Route pages
+│   ├── Home.tsx
+│   ├── Shop.tsx
+│   ├── ProductDetails.tsx
+│   ├── Cart.tsx
+│   ├── Checkout.tsx
+│   ├── Orders.tsx
+│   ├── Profile.tsx
+│   ├── Admin.tsx
+│   ├── Login.tsx
+│   ├── Signup.tsx
+│   ├── FAQ.tsx
+│   ├── Shipping.tsx
+│   ├── Returns.tsx
+│   └── Contact.tsx
+├── context/          # React Context providers
+├── services/         # Firebase & Gemini API
+├── data/             # Mock data
+└── types.ts          # TypeScript interfaces
+```
 
-### 1. Frontend Setup
+---
+
+## 🚀 Quick Start
 
 ```bash
-# Clone the repository
+# Clone
 git clone https://github.com/naseem-2917/e-commerce.git
 cd e-commerce
 
-# Install dependencies
+# Install
 npm install
 
-# Configure Environment
-# Copy .env.example to .env and fill in your keys
-cp .env.example .env
-
-# Run Development Server
+# Run
 npm run dev
 ```
 
-### 2. Backend Setup (Choose One)
+---
 
-You need a backend to securely proxy AI requests. Choose either the local Node server or Cloudflare Worker.
+## 🔑 Test Credentials
 
-#### Option A: Local Node Server
-```bash
-cd server
-npm install
-npm start
-# Server runs on http://localhost:3001
-```
+### Admin Access
+1. Login with any account
+2. Go to `/admin`
+3. Enter secret code: `nasadmin`
 
-#### Option B: Cloudflare Worker (Production)
-```bash
-cd cloudflare-worker
-npm install
-wrangler secret put GEMINI_API_KEY # Enter your key
-wrangler deploy
-# Update VITE_AI_API_URL in frontend .env with your Worker URL
-```
+### Coupon Codes
+| Code | Discount |
+|------|----------|
+| `SAVE10` | 10% off |
+| `FIRST20` | 20% off |
+| `HACKATHON50` | 50% off |
 
 ---
 
-## 🔒 Environment Variables
+## 📱 Pages
 
-Create a `.env` file in the root directory:
-
-```env
-VITE_FIREBASE_API_KEY=your_key
-VITE_FIREBASE_AUTH_DOMAIN=your_domain
-VITE_FIREBASE_PROJECT_ID=your_id
-VITE_FIREBASE_STORAGE_BUCKET=your_bucket
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_id
-VITE_FIREBASE_APP_ID=your_id
-
-# AI Configuration
-VITE_GEMINI_API_KEY=your_key (Dev only)
-# VITE_AI_API_URL=http://localhost:3001/api (For Prod/Secure)
-```
-
----
-
-## 📸 Screenshots
-
-| Shop Page | AI Assistant |
-|-----------|--------------|
-| ![Shop](https://via.placeholder.com/400x200?text=Shop+Page) | ![Chat](https://via.placeholder.com/400x200?text=AI+Chat) |
-
-| Product Details | Admin Panel |
-|----------------|-------------|
-| ![Details](https://via.placeholder.com/400x200?text=Product+Details) | ![Admin](https://via.placeholder.com/400x200?text=Admin+Panel) |
+| Page | URL | Description |
+|------|-----|-------------|
+| Home | `/` | Hero, categories, featured products |
+| Products | `/shop` | All products with filters |
+| Product Details | `/product/:id` | AI Explain, add to cart |
+| Cart | `/cart` | View cart items |
+| Checkout | `/checkout` | Apply coupon, payment |
+| Orders | `/orders` | Download purchased products |
+| Profile | `/profile` | User info, quick links |
+| Admin | `/admin` | Manage products/coupons |
+| FAQ | `/faq` | Common questions |
+| Shipping | `/shipping` | Delivery info |
+| Returns | `/returns` | Refund policy |
+| Contact | `/contact` | Contact form |
 
 ---
 
-## 🤝 Contribution
+## 🎯 Key Highlights
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+- ✅ **AI Integration** - Gemini-powered product explanations & chat
+- ✅ **Mobile-First** - Bottom navigation, responsive design
+- ✅ **Modern Auth** - Google login, password reset
+- ✅ **Admin Panel** - Full product & coupon management
+- ✅ **Dark Mode** - System-aware theme toggle
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+---
 
 ## 📄 License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+MIT License - Free for personal and commercial use.
+
+---
+
+<p align="center">
+  Made with ❤️ by <a href="https://github.com/naseem-2917">Naseem Khan</a>
+</p>

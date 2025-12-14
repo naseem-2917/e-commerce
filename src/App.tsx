@@ -24,7 +24,7 @@ function App() {
         <AuthProvider>
             <CartProvider>
                 <ThemeProvider>
-                    <Router basename="/e-commerce">
+                    <Router basename="/">
                         <div className="relative">
                             <Routes>
                                 <Route path="/login" element={<Login />} />
