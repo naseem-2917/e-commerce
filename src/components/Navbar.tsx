@@ -32,11 +32,11 @@ export default function Navbar() {
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
                     <Link to="/" className="flex items-center gap-2">
-                        <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                            <Sparkles size={20} className="text-white" />
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                            <Sparkles size={22} className="text-white" />
                         </div>
-                        <span className="font-bold text-xl text-slate-900 dark:text-white">
-                            NAS <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Digital</span>
+                        <span className="font-bold text-2xl text-slate-900 dark:text-white tracking-tight">
+                            NAS
                         </span>
                     </Link>
 
@@ -96,11 +96,11 @@ export default function Navbar() {
                             {user ? (
                                 <>
                                     <Link
-                                        to="/orders"
+                                        to="/profile"
                                         className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300"
                                     >
                                         <User size={18} />
-                                        <span className="text-sm font-medium">{user.displayName || 'Account'}</span>
+                                        <span className="text-sm font-medium">{user.displayName || 'Profile'}</span>
                                     </Link>
                                     {user.role === 'admin' && (
                                         <Link
@@ -176,12 +176,12 @@ export default function Navbar() {
                             {user ? (
                                 <>
                                     <Link
-                                        to="/orders"
+                                        to="/profile"
                                         onClick={() => setIsOpen(false)}
                                         className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                                     >
                                         <User size={18} />
-                                        My Orders
+                                        My Profile
                                     </Link>
                                     {user.role === 'admin' && (
                                         <Link

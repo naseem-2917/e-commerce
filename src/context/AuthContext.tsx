@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         uid: firebaseUser.uid,
                         email: firebaseUser.email,
                         displayName: firebaseUser.displayName,
-                        role: userData?.role || 'admin', // Default to admin for testing
+                        role: userData?.role || 'user', // Role comes from Firestore
                     });
                 } else {
                     setUser(null);

@@ -13,6 +13,11 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Admin from './pages/Admin';
 import Orders from './pages/Orders';
+import FAQ from './pages/FAQ';
+import Shipping from './pages/Shipping';
+import Returns from './pages/Returns';
+import Contact from './pages/Contact';
+import Profile from './pages/Profile';
 
 function App() {
     return (
@@ -29,8 +34,13 @@ function App() {
                                 <Route path="/product/:id" element={<Layout><ProductDetails /></Layout>} />
                                 <Route path="/cart" element={<Layout><Cart /></Layout>} />
                                 <Route path="/orders" element={<Layout><Orders /></Layout>} />
+                                <Route path="/profile" element={<Layout><Profile /></Layout>} />
                                 <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
                                 <Route path="/admin" element={<Layout><Admin /></Layout>} />
+                                <Route path="/faq" element={<Layout><FAQ /></Layout>} />
+                                <Route path="/shipping" element={<Layout><Shipping /></Layout>} />
+                                <Route path="/returns" element={<Layout><Returns /></Layout>} />
+                                <Route path="/contact" element={<Layout><Contact /></Layout>} />
                             </Routes>
                             <ChatBot />
                         </div>

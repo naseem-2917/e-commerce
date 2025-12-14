@@ -19,7 +19,7 @@ export default function BottomNavigation() {
         { to: '/', icon: Home, label: 'Home' },
         { to: '/shop', icon: ShoppingBag, label: 'Products' },
         { to: '/cart', icon: ShoppingCart, label: 'Cart', badge: cartCount },
-        { to: user ? '/orders' : '/login', icon: User, label: user ? 'Profile' : 'Login' },
+        { to: user ? '/profile' : '/login', icon: User, label: user ? 'Profile' : 'Login' },
     ];
 
     return (

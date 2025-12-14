@@ -1,10 +1,16 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Navigate } from 'react-router-dom';
-import { Plus, Trash2, Edit2, Package, ShoppingBag, Tag, X, Check, ToggleLeft, ToggleRight } from 'lucide-react';
+import { loginUser } from '../services/auth';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../services/firebase';
+import { Plus, Trash2, Edit2, Package, ShoppingBag, Tag, X, Check, ToggleLeft, ToggleRight, Shield, Lock, Mail, Copy, CheckCircle } from 'lucide-react';
 import { MOCK_PRODUCTS, MOCK_ORDERS, MOCK_COUPONS, CATEGORIES } from '../data/mock';
 import { Product, Coupon } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Admin credentials for testing
+const ADMIN_EMAIL = 'admin@nasdigital.com';
+const ADMIN_PASSWORD = 'nasadmin';
 
 export default function Admin() {
     const { user, loading } = useAuth();
@@ -14,6 +20,14 @@ export default function Admin() {
     const [showProductModal, setShowProductModal] = useState(false);
     const [showCouponModal, setShowCouponModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+    // Admin login state
+    const [adminEmail, setAdminEmail] = useState('');
+    const [adminPassword, setAdminPassword] = useState('');
+    const [adminError, setAdminError] = useState('');
+    const [adminLoading, setAdminLoading] = useState(false);
+    const [copiedEmail, setCopiedEmail] = useState(false);
+    const [copiedPassword, setCopiedPassword] = useState(false);
 
     // Product form state
     const [productForm, setProductForm] = useState({
@@ -32,10 +46,153 @@ export default function Admin() {
         discountPercent: ''
     });
 
+    const copyToClipboard = (text: string, type: 'email' | 'password') => {
+        navigator.clipboard.writeText(text);
+        if (type === 'email') {
+            setCopiedEmail(true);
+            setTimeout(() => setCopiedEmail(false), 2000);
+        } else {
+            setCopiedPassword(true);
+            setTimeout(() => setCopiedPassword(false), 2000);
+        }
+    };
+
+    const handleAdminLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setAdminLoading(true);
+        setAdminError('');
+
+        // Check if using admin credentials
+        if (adminEmail === ADMIN_EMAIL && adminPassword === ADMIN_PASSWORD) {
+            const { user: loggedInUser, error } = await loginUser(adminEmail, adminPassword);
+
+            if (error) {
+                // User doesn't exist, show error
+                setAdminError('Admin account not found. Please create the account first in Firebase.');
+            } else if (loggedInUser) {
+                // Update role to admin in Firestore
+                try {
+                    await updateDoc(doc(db, 'users', loggedInUser.uid), {
+                        role: 'admin'
+                    });
+                    // Reload page to refresh auth state
+                    window.location.reload();
+                } catch (err) {
+                    console.error('Failed to update role:', err);
+                    setAdminError('Login successful but failed to set admin role.');
+                }
+            }
+        } else {
+            setAdminError('Invalid admin credentials.');
+        }
+        setAdminLoading(false);
+    };
+
     if (loading) return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
 
+    // Show admin login if not logged in OR not an admin
     if (!user || user.role !== 'admin') {
-        return <Navigate to="/" replace />;
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="max-w-md w-full"
+                >
+                    <div className="text-center mb-8">
+                        <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                            <Shield size={32} className="text-white" />
+                        </div>
+                        <h1 className="text-3xl font-bold text-white mb-2">Admin Panel</h1>
+                        <p className="text-slate-400">Enter admin credentials to access</p>
+                    </div>
+
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-8 border border-slate-200 dark:border-slate-800">
+                        {adminError && (
+                            <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-xl mb-4 flex items-center gap-2 text-sm">
+                                {adminError}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleAdminLogin} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Admin Email</label>
+                                <div className="relative">
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                                    <input
+                                        type="email"
+                                        required
+                                        value={adminEmail}
+                                        onChange={(e) => setAdminEmail(e.target.value)}
+                                        className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all text-slate-900 dark:text-white"
+                                        placeholder="admin@nasdigital.com"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Admin Password</label>
+                                <div className="relative">
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                                    <input
+                                        type="password"
+                                        required
+                                        value={adminPassword}
+                                        onChange={(e) => setAdminPassword(e.target.value)}
+                                        className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all text-slate-900 dark:text-white"
+                                        placeholder="••••••••"
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={adminLoading}
+                                className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl font-bold hover:from-amber-600 hover:to-orange-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                {adminLoading ? (
+                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                    <>
+                                        <Shield size={18} /> Access Admin Panel
+                                    </>
+                                )}
+                            </button>
+                        </form>
+
+                        {/* Test Credentials */}
+                        <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                            <h3 className="font-bold text-amber-800 dark:text-amber-400 mb-3 text-sm">🔑 Test Credentials (Click to copy)</h3>
+                            <div className="space-y-2">
+                                <div
+                                    onClick={() => copyToClipboard(ADMIN_EMAIL, 'email')}
+                                    className="flex items-center justify-between bg-white dark:bg-slate-800 px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                >
+                                    <div>
+                                        <span className="text-xs text-slate-500 dark:text-slate-400">Email:</span>
+                                        <p className="font-mono text-sm text-slate-900 dark:text-white">{ADMIN_EMAIL}</p>
+                                    </div>
+                                    {copiedEmail ? <CheckCircle size={16} className="text-green-500" /> : <Copy size={16} className="text-slate-400" />}
+                                </div>
+                                <div
+                                    onClick={() => copyToClipboard(ADMIN_PASSWORD, 'password')}
+                                    className="flex items-center justify-between bg-white dark:bg-slate-800 px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                >
+                                    <div>
+                                        <span className="text-xs text-slate-500 dark:text-slate-400">Password:</span>
+                                        <p className="font-mono text-sm text-slate-900 dark:text-white">{ADMIN_PASSWORD}</p>
+                                    </div>
+                                    {copiedPassword ? <CheckCircle size={16} className="text-green-500" /> : <Copy size={16} className="text-slate-400" />}
+                                </div>
+                            </div>
+                            <p className="text-xs text-amber-700 dark:text-amber-300 mt-3">
+                                ⚠️ First time: Create this account via Signup page, then login here.
+                            </p>
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
+        );
     }
 
     const handleToggleProduct = (id: string) => {
@@ -158,8 +315,8 @@ export default function Admin() {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as typeof activeTab)}
                         className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${activeTab === tab.id
-                                ? 'bg-slate-900 dark:bg-blue-600 text-white'
-                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                            ? 'bg-slate-900 dark:bg-blue-600 text-white'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                             }`}
                     >
                         <tab.icon size={18} />
@@ -205,8 +362,8 @@ export default function Admin() {
                                             <button
                                                 onClick={() => handleToggleProduct(p.id)}
                                                 className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${p.isActive
-                                                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                                                        : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                                                    : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
                                                     }`}
                                             >
                                                 {p.isActive ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}
@@ -275,8 +432,8 @@ export default function Admin() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-3 py-1 rounded-full text-xs font-medium ${o.status === 'completed'
-                                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                                                    : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                                                : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
                                                 }`}>
                                                 {o.status}
                                             </span>
@@ -313,8 +470,8 @@ export default function Admin() {
                                             <button
                                                 onClick={() => handleToggleCoupon(c.code)}
                                                 className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${c.isActive
-                                                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                                                        : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                                                    : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
                                                     }`}
                                             >
                                                 {c.isActive ? <Check size={14} /> : <X size={14} />}

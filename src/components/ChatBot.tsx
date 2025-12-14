@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, X, Send, Sparkles, Lightbulb, Search, ThumbsUp } from 'lucide-react';
-import { getShoppingAssistantResponse, getProductRecommendations } from '../services/gemini';
+import { getShoppingAssistantResponse } from '../services/gemini';
 import { useCart } from '../context/CartContext';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
