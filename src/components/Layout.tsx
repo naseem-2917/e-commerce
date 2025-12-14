@@ -1,19 +1,18 @@
-import { ReactNode } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import BottomNavigation from './BottomNavigation';
 
-interface LayoutProps {
-    children: ReactNode;
-}
-
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 transition-colors duration-300">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
             <Navbar />
-            <main className="pt-16 min-h-[calc(100vh-4rem)]">
+            <main className="pt-16 pb-20 md:pb-0">
                 {children}
             </main>
-            <Footer />
+            <div className="hidden md:block">
+                <Footer />
+            </div>
+            <BottomNavigation />
         </div>
     );
 }

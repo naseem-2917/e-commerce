@@ -1,53 +1,53 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MOCK_PRODUCTS } from '../data/mock';
-import { ShoppingCart, Star, Truck, ShieldCheck, ArrowLeft, Sparkles, Brain } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, Sparkles, Download, Shield, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { summarizeProduct, analyzeReviews } from '../services/gemini';
+import { explainProduct } from '../services/gemini';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const MOCK_REVIEWS = [
-    "Amazing product! The quality is top notch and it arrived very quickly. Highly recommend.",
-    "Good value for money but the battery life could be better.",
-    "I love the design, it looks very premium. Works exactly as described.",
-    "Had some issues with shipping but the support team was helpful.",
-    "Best purchase I've made all year. Seriously impressive features."
-];
 
 export default function ProductDetails() {
     const { id } = useParams<{ id: string }>();
-    // In real app, fetch from Firestore
     const product = MOCK_PRODUCTS.find(p => p.id === id);
     const [quantity, setQuantity] = useState(1);
     const { addItem } = useCart();
 
-    const [summary, setSummary] = useState('');
-    const [isSummarizing, setIsSummarizing] = useState(false);
+    // AI Explain Feature State
+    const [aiExplanation, setAiExplanation] = useState('');
+    const [isExplaining, setIsExplaining] = useState(false);
 
-    const [reviewAnalysis, setReviewAnalysis] = useState('');
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    // Screenshot carousel state
+    const [currentScreenshot, setCurrentScreenshot] = useState(0);
 
     if (!product) {
         return (
             <div className="min-h-[50vh] flex flex-col items-center justify-center">
-                <h2 className="text-2xl font-bold text-slate-800">Product not found</h2>
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Product not found</h2>
                 <Link to="/shop" className="text-blue-600 hover:underline mt-4">Back to Shop</Link>
             </div>
         );
     }
 
-    const handleSummarize = async () => {
-        setIsSummarizing(true);
-        const result = await summarizeProduct(product.name, product.description);
-        setSummary(result);
-        setIsSummarizing(false);
+    const allImages = [product.images[0], ...(product.screenshots || [])];
+
+    const handleAIExplain = async () => {
+        if (aiExplanation) return; // Already explained
+        setIsExplaining(true);
+        try {
+            const result = await explainProduct(product);
+            setAiExplanation(result);
+        } catch (error) {
+            setAiExplanation("Sorry, I couldn't generate an explanation right now. Please try again.");
+        }
+        setIsExplaining(false);
     };
 
-    const handleAnalyzeReviews = async () => {
-        setIsAnalyzing(true);
-        const result = await analyzeReviews(MOCK_REVIEWS);
-        setReviewAnalysis(result);
-        setIsAnalyzing(false);
+    const nextScreenshot = () => {
+        setCurrentScreenshot((prev) => (prev + 1) % allImages.length);
+    };
+
+    const prevScreenshot = () => {
+        setCurrentScreenshot((prev) => (prev - 1 + allImages.length) % allImages.length);
     };
 
     return (
@@ -56,62 +56,110 @@ export default function ProductDetails() {
                 <ArrowLeft size={18} /> Back to Shop
             </Link>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
-                {/* Image Section */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm">
-                    <img
-                        src={product.images[0]}
-                        alt={product.name}
-                        className="w-full h-auto rounded-xl object-cover aspect-square"
-                    />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+                {/* Image Gallery Section */}
+                <div className="space-y-4">
+                    <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+                        <img
+                            src={allImages[currentScreenshot]}
+                            alt={product.name}
+                            className="w-full h-auto rounded-xl object-cover aspect-square"
+                        />
+                        {allImages.length > 1 && (
+                            <>
+                                <button
+                                    onClick={prevScreenshot}
+                                    className="absolute left-6 top-1/2 -translate-y-1/2 p-2 bg-white/90 dark:bg-slate-800/90 rounded-full shadow-lg hover:scale-110 transition-transform"
+                                >
+                                    <ChevronLeft size={20} />
+                                </button>
+                                <button
+                                    onClick={nextScreenshot}
+                                    className="absolute right-6 top-1/2 -translate-y-1/2 p-2 bg-white/90 dark:bg-slate-800/90 rounded-full shadow-lg hover:scale-110 transition-transform"
+                                >
+                                    <ChevronRight size={20} />
+                                </button>
+                            </>
+                        )}
+                    </div>
+                    {/* Thumbnail Navigation */}
+                    {allImages.length > 1 && (
+                        <div className="flex gap-2 justify-center">
+                            {allImages.map((img, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => setCurrentScreenshot(idx)}
+                                    className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${currentScreenshot === idx
+                                            ? 'border-blue-500 scale-105'
+                                            : 'border-transparent opacity-60 hover:opacity-100'
+                                        }`}
+                                >
+                                    <img src={img} alt="" className="w-full h-full object-cover" />
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Info Section */}
                 <div>
                     <div className="mb-6">
-                        <span className="text-blue-600 dark:text-blue-400 font-semibold tracking-wider uppercase text-sm">{product.category}</span>
-                        <h1 className="text-4xl font-bold text-slate-900 dark:text-white mt-2 mb-4">{product.name}</h1>
-                        <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-1 text-amber-400">
-                                <Star fill="currentColor" size={20} />
-                                <Star fill="currentColor" size={20} />
-                                <Star fill="currentColor" size={20} />
-                                <Star fill="currentColor" size={20} />
-                                <Star fill="currentColor" size={20} className="opacity-50" />
+                        <span className="inline-block px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-medium mb-3">
+                            {product.category}
+                        </span>
+                        <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">{product.name}</h1>
+
+                        {/* Tags */}
+                        {product.tags && (
+                            <div className="flex flex-wrap gap-2 mb-4">
+                                {product.tags.map(tag => (
+                                    <span key={tag} className="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full">
+                                        #{tag}
+                                    </span>
+                                ))}
                             </div>
-                            <span className="text-slate-500 dark:text-slate-400 text-sm">(128 reviews)</span>
-                        </div>
+                        )}
                     </div>
 
-                    <div className="text-3xl font-bold text-slate-900 dark:text-white mb-6">
+                    <div className="text-4xl font-bold text-slate-900 dark:text-white mb-6">
                         ₹{product.price.toLocaleString()}
                     </div>
 
-                    <div className="mb-8">
-                        <div className="flex items-center justify-between mb-2">
-                            <h3 className="font-bold text-slate-900 dark:text-white">Description</h3>
-                            <button
-                                onClick={handleSummarize}
-                                disabled={isSummarizing || !!summary}
-                                className="text-xs flex items-center gap-1 text-purple-600 dark:text-purple-400 font-medium hover:bg-purple-50 dark:hover:bg-purple-900/20 px-2 py-1 rounded-full transition-colors"
+                    {/* ⭐ AI EXPLAIN BUTTON - THE UNIQUE FEATURE */}
+                    <motion.button
+                        onClick={handleAIExplain}
+                        disabled={isExplaining || !!aiExplanation}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full mb-6 py-4 px-6 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-bold flex items-center justify-center gap-3 shadow-lg shadow-purple-500/20 hover:shadow-purple-500/30 transition-all disabled:opacity-70"
+                    >
+                        <Sparkles size={22} className={isExplaining ? 'animate-spin' : ''} />
+                        {isExplaining ? 'AI is thinking...' : aiExplanation ? '✓ AI Explained' : '🤖 Explain this Product'}
+                    </motion.button>
+
+                    {/* AI Explanation Result */}
+                    <AnimatePresence>
+                        {aiExplanation && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-6 rounded-2xl mb-6 border border-purple-200 dark:border-purple-800"
                             >
-                                <Sparkles size={14} /> {isSummarizing ? 'Summarizing...' : 'AI Summary'}
-                            </button>
-                        </div>
+                                <div className="flex items-center gap-2 font-bold text-purple-900 dark:text-purple-300 mb-3">
+                                    <Sparkles size={18} />
+                                    AI Explanation
+                                </div>
+                                <div className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
+                                    {aiExplanation}
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
-                        <AnimatePresence>
-                            {summary ? (
-                                <motion.div
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: 'auto' }}
-                                    className="bg-purple-50 dark:bg-purple-900/10 p-4 rounded-xl text-sm text-purple-900 dark:text-purple-300 mb-4 border border-purple-100 dark:border-purple-800"
-                                >
-                                    <div className="font-bold mb-1 flex items-center gap-2"><Sparkles size={14} /> AI Highlights</div>
-                                    <div className="whitespace-pre-line leading-relaxed">{summary}</div>
-                                </motion.div>
-                            ) : null}
-                        </AnimatePresence>
-
+                    {/* Description */}
+                    <div className="mb-8">
+                        <h3 className="font-bold text-slate-900 dark:text-white mb-3">About this product</h3>
                         <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-lg">
                             {product.description}
                         </p>
@@ -122,12 +170,12 @@ export default function ProductDetails() {
                         <div className="flex items-center border border-slate-300 dark:border-slate-700 rounded-lg">
                             <button
                                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                className="px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold"
+                                className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold transition-colors"
                             >-</button>
-                            <span className="px-4 py-2 font-medium text-slate-900 dark:text-white">{quantity}</span>
+                            <span className="px-4 py-3 font-medium text-slate-900 dark:text-white min-w-[50px] text-center">{quantity}</span>
                             <button
                                 onClick={() => setQuantity(quantity + 1)}
-                                className="px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold"
+                                className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold transition-colors"
                             >+</button>
                         </div>
 
@@ -136,82 +184,63 @@ export default function ProductDetails() {
                                 addItem(product, quantity);
                                 alert('Added to cart!');
                             }}
-                            className="flex-1 bg-slate-900 dark:bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 dark:hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-900/10"
+                            className="flex-1 bg-slate-900 dark:bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-slate-800 dark:hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg"
                         >
                             <ShoppingCart size={20} /> Add to Cart
                         </button>
                     </div>
 
                     {/* Features / Benefits */}
-                    <div className="grid grid-cols-2 gap-4 pt-8 border-t border-slate-200 dark:border-slate-800">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg">
-                                <Truck size={24} />
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-8 border-t border-slate-200 dark:border-slate-800">
+                        <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                            <div className="p-2 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg">
+                                <Download size={20} />
                             </div>
                             <div>
-                                <p className="font-bold text-slate-900 dark:text-white text-sm">Free Delivery</p>
-                                <p className="text-slate-500 dark:text-slate-400 text-xs">Orders over ₹5,000</p>
+                                <p className="font-semibold text-slate-900 dark:text-white text-sm">Instant Download</p>
+                                <p className="text-slate-500 dark:text-slate-400 text-xs">After purchase</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg">
-                                <ShieldCheck size={24} />
+                        <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
+                                <Zap size={20} />
                             </div>
                             <div>
-                                <p className="font-bold text-slate-900 dark:text-white text-sm">2 Year Warranty</p>
-                                <p className="text-slate-500 dark:text-slate-400 text-xs">100% Guarantee</p>
+                                <p className="font-semibold text-slate-900 dark:text-white text-sm">Lifetime Access</p>
+                                <p className="text-slate-500 dark:text-slate-400 text-xs">No expiry</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                            <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg">
+                                <Shield size={20} />
+                            </div>
+                            <div>
+                                <p className="font-semibold text-slate-900 dark:text-white text-sm">Secure Payment</p>
+                                <p className="text-slate-500 dark:text-slate-400 text-xs">100% safe</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Reviews Section */}
+            {/* Related Products Placeholder */}
             <div className="border-t border-slate-200 dark:border-slate-800 pt-12">
-                <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Customer Reviews</h2>
-                    <button
-                        onClick={handleAnalyzeReviews}
-                        disabled={isAnalyzing || !!reviewAnalysis}
-                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-medium shadow-lg shadow-blue-500/20 hover:scale-105 transition-transform"
-                    >
-                        <Brain size={18} /> {isAnalyzing ? 'Analyzing...' : 'Analyze with AI'}
-                    </button>
-                </div>
-
-                <AnimatePresence>
-                    {reviewAnalysis && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-2xl p-6 mb-8"
-                        >
-                            <h3 className="flex items-center gap-2 font-bold text-indigo-900 dark:text-indigo-300 mb-4">
-                                <Sparkles size={18} /> AI Sentiment Analysis
-                            </h3>
-                            <div className="text-indigo-800 dark:text-indigo-200 whitespace-pre-line leading-relaxed">
-                                {reviewAnalysis}
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                <div className="space-y-6">
-                    {MOCK_REVIEWS.map((review, i) => (
-                        <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm">
-                            <div className="flex items-center gap-2 mb-2">
-                                <div className="flex text-amber-400">
-                                    <Star size={16} fill="currentColor" />
-                                    <Star size={16} fill="currentColor" />
-                                    <Star size={16} fill="currentColor" />
-                                    <Star size={16} fill="currentColor" />
-                                    <Star size={16} fill="currentColor" />
-                                </div>
-                                <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">Verified Buyer</span>
-                            </div>
-                            <p className="text-slate-700 dark:text-slate-300">{review}</p>
-                        </div>
-                    ))}
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">You might also like</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {MOCK_PRODUCTS.filter(p => p.id !== product.id && p.category === product.category && p.isActive)
+                        .slice(0, 4)
+                        .map(p => (
+                            <Link
+                                key={p.id}
+                                to={`/product/${p.id}`}
+                                className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-100 dark:border-slate-800 hover:shadow-lg transition-shadow group"
+                            >
+                                <img src={p.images[0]} alt={p.name} className="w-full aspect-square object-cover rounded-lg mb-3 group-hover:scale-105 transition-transform" />
+                                <h3 className="font-medium text-slate-900 dark:text-white text-sm line-clamp-1">{p.name}</h3>
+                                <p className="text-blue-600 dark:text-blue-400 font-bold">₹{p.price.toLocaleString()}</p>
+                            </Link>
+                        ))
+                    }
                 </div>
             </div>
         </div>

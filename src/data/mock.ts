@@ -1,104 +1,169 @@
-import { Product } from '../types';
+import { Product, Coupon, Order } from '../types';
 
 export const MOCK_PRODUCTS: Product[] = [
     {
         id: '1',
-        name: 'Sony WH-1000XM5',
-        description: 'The best noise cancelling headphones in the market with industry-leading noise cancellation. 30 hours battery life, lightweight design, and crystal clear call quality.',
-        price: 29990,
-        category: 'Electronics',
-        images: ['https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?auto=format&fit=crop&q=80&w=1000'],
-        stock: 10,
-        tags: ['noise cancelling', 'wireless', 'headphones', 'sony']
+        name: 'Ultimate UI Kit Pro',
+        description: 'A comprehensive Figma UI kit with 500+ components, 50+ screens, and design systems for web and mobile apps. Perfect for startups and designers who want to speed up their workflow.',
+        price: 2999,
+        category: 'Design Templates',
+        images: ['https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&q=80&w=1000'],
+        screenshots: [
+            'https://images.unsplash.com/photo-1558655146-9f40138edfeb?auto=format&fit=crop&q=80&w=800',
+            'https://images.unsplash.com/photo-1559028012-481c04fa702d?auto=format&fit=crop&q=80&w=800'
+        ],
+        downloadUrl: 'https://example.com/downloads/ui-kit-pro.zip',
+        isActive: true,
+        tags: ['figma', 'ui kit', 'design system', 'components']
     },
     {
         id: '2',
-        name: 'MacBook Air M2',
-        description: 'Supercharged by M2 chip. The thinnest, lightest notebook. 18 hours battery life. Stunning Liquid Retina display.',
-        price: 99900,
-        category: 'Computers',
-        images: ['https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&q=80&w=1000'],
-        stock: 5,
-        tags: ['laptop', 'apple', 'm2', 'macbook']
+        name: 'React Mastery Course',
+        description: 'Complete React.js course from beginner to advanced. Learn hooks, context, Redux, and build 10 real-world projects. Includes lifetime access and certificate.',
+        price: 4999,
+        category: 'Online Courses',
+        images: ['https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&q=80&w=1000'],
+        screenshots: [
+            'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=800'
+        ],
+        downloadUrl: 'https://example.com/courses/react-mastery',
+        isActive: true,
+        tags: ['react', 'javascript', 'web development', 'course']
     },
     {
         id: '3',
-        name: 'Nike Air Max 270',
-        description: 'Legendary Air Max comfort with a modern streamlined look. Features the biggest heel Air unit yet for a soft ride that feels as impossible as it looks.',
-        price: 13995,
-        category: 'Fashion',
-        images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=1000'],
-        stock: 20,
-        tags: ['shoes', 'running', 'sport', 'nike']
+        name: 'Notion Productivity System',
+        description: 'All-in-one Notion template for productivity. Includes task manager, habit tracker, goal setting, and life dashboard. Boost your productivity 10x.',
+        price: 999,
+        category: 'Templates',
+        images: ['https://images.unsplash.com/photo-1611224923853-80b023f02d71?auto=format&fit=crop&q=80&w=1000'],
+        downloadUrl: 'https://example.com/downloads/notion-system.zip',
+        isActive: true,
+        tags: ['notion', 'productivity', 'template', 'organization']
     },
     {
         id: '4',
-        name: 'Logitech MX Master 3S',
-        description: 'An icon remastered. Feel every moment of your workflow with even more precision, tactility, and performance, thanks to Quiet Clicks and the 8,000 DPI track-on-glass sensor.',
-        price: 8995,
-        category: 'Electronics',
-        images: ['https://images.unsplash.com/photo-1629429408209-1f912961dbd8?auto=format&fit=crop&q=80&w=1000'],
-        stock: 15,
-        tags: ['mouse', 'productivity', 'wireless', 'logitech']
+        name: 'The Startup Playbook',
+        description: 'Essential guide for first-time founders. Learn fundraising, product-market fit, team building, and scaling strategies from successful entrepreneurs.',
+        price: 1499,
+        category: 'Ebooks',
+        images: ['https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=1000'],
+        downloadUrl: 'https://example.com/downloads/startup-playbook.pdf',
+        isActive: true,
+        tags: ['startup', 'business', 'entrepreneurship', 'ebook']
     },
     {
         id: '5',
-        name: 'Samsung Galaxy S24 Ultra',
-        description: 'Unleash new possibilities with Galaxy AI. Capture details that rival reality with the 200MP camera and the most powerful processor on a Galaxy.',
-        price: 129999,
-        category: 'Electronics',
-        images: ['https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&q=80&w=1000'],
-        stock: 8,
-        tags: ['smartphone', 'samsung', 'android', 'ai']
+        name: '3D Icon Pack - Premium',
+        description: '200+ stunning 3D icons in multiple formats (PNG, SVG, Figma). Perfect for websites, apps, and presentations. High-resolution and fully customizable.',
+        price: 1999,
+        category: 'Design Templates',
+        images: ['https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1000'],
+        downloadUrl: 'https://example.com/downloads/3d-icons.zip',
+        isActive: true,
+        tags: ['icons', '3d', 'design', 'graphics']
     },
     {
         id: '6',
-        name: 'Herman Miller Aeron Chair',
-        description: 'The benchmark for ergonomic seating. Designed to distribute weight evenly and keep you cool and comfortable for long hours of work.',
-        price: 125000,
-        category: 'Furniture',
-        images: ['https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?auto=format&fit=crop&q=80&w=1000'],
-        stock: 3,
-        tags: ['office', 'chair', 'ergonomic', 'furniture']
+        name: 'Python AI Bootcamp',
+        description: 'Learn Python and AI/ML from scratch. Build chatbots, image recognition systems, and recommendation engines. 40+ hours of content with hands-on projects.',
+        price: 5999,
+        category: 'Online Courses',
+        images: ['https://images.unsplash.com/photo-1526379095098-d400fd0bf935?auto=format&fit=crop&q=80&w=1000'],
+        downloadUrl: 'https://example.com/courses/python-ai',
+        isActive: true,
+        tags: ['python', 'ai', 'machine learning', 'course']
     },
     {
         id: '7',
-        name: 'Ray-Ban Aviator Classic',
-        description: 'Currently one of the most iconic sunglass models in the world. Originally designed for U.S. Aviators in 1937.',
-        price: 10590,
-        category: 'Fashion',
-        images: ['https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&q=80&w=1000'],
-        stock: 25,
-        tags: ['sunglasses', 'fashion', 'summer', 'rayban']
+        name: 'Social Media Template Bundle',
+        description: 'Complete social media kit with 100+ Canva templates for Instagram, TikTok, LinkedIn, and Twitter. Stand out with professional designs.',
+        price: 799,
+        category: 'Templates',
+        images: ['https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&q=80&w=1000'],
+        downloadUrl: 'https://example.com/downloads/social-templates.zip',
+        isActive: true,
+        tags: ['social media', 'canva', 'instagram', 'marketing']
     },
     {
         id: '8',
-        name: 'PlayStation 5 Console',
-        description: 'Experience lightning-fast loading with an ultra-high speed SSD, deeper immersion with haptic feedback, adaptive triggers, and 3D Audio.',
-        price: 54990,
-        category: 'Gaming',
-        images: ['https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&q=80&w=1000'],
-        stock: 12,
-        tags: ['gaming', 'ps5', 'console', 'sony']
+        name: 'JavaScript Interview Guide',
+        description: 'Ace your next JavaScript interview with 200+ curated questions, answers, and explanations. Covers ES6+, React, Node.js, and system design.',
+        price: 699,
+        category: 'Ebooks',
+        images: ['https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?auto=format&fit=crop&q=80&w=1000'],
+        downloadUrl: 'https://example.com/downloads/js-interview.pdf',
+        isActive: true,
+        tags: ['javascript', 'interview', 'career', 'programming']
     },
     {
         id: '9',
-        name: 'Kindle Paperwhite',
-        description: 'Now with a 6.8" display and thinner borders, adjustable warm light, up to 10 weeks of battery life, and 20% faster page turns.',
-        price: 14999,
-        category: 'Electronics',
-        images: ['https://images.unsplash.com/photo-1594312915251-48db9280c8f1?auto=format&fit=crop&q=80&w=1000'],
-        stock: 30,
-        tags: ['reader', 'book', 'amazon', 'tablet']
+        name: 'Chrome Extension Starter Kit',
+        description: 'Build Chrome extensions in minutes. Includes boilerplate code, manifest v3 setup, popup UI templates, and deployment guide.',
+        price: 1299,
+        category: 'Software',
+        images: ['https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&q=80&w=1000'],
+        downloadUrl: 'https://example.com/downloads/chrome-kit.zip',
+        isActive: true,
+        tags: ['chrome', 'extension', 'javascript', 'web']
     },
     {
         id: '10',
-        name: 'Dyson V15 Detect',
-        description: 'Powerful, intelligent cordless vacuum. Laser reveals microscopic dust. LCD screen reports performance in real time.',
-        price: 65900,
-        category: 'Home',
-        images: ['https://images.unsplash.com/photo-1558317379-1784935d1926?auto=format&fit=crop&q=80&w=1000'],
-        stock: 7,
-        tags: ['vacuum', 'cleaning', 'home', 'dyson']
+        name: 'Photography Masterclass',
+        description: 'Professional photography course covering composition, lighting, editing, and business. Learn from award-winning photographers. Includes Lightroom presets.',
+        price: 3499,
+        category: 'Online Courses',
+        images: ['https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&q=80&w=1000'],
+        downloadUrl: 'https://example.com/courses/photography',
+        isActive: true,
+        tags: ['photography', 'editing', 'lightroom', 'creative']
     }
+];
+
+// Pre-configured coupons for hackathon demo
+export const MOCK_COUPONS: Coupon[] = [
+    { code: 'SAVE10', discountPercent: 10, isActive: true },
+    { code: 'FIRST20', discountPercent: 20, isActive: true },
+    { code: 'HACKATHON50', discountPercent: 50, isActive: true },
+    { code: 'EXPIRED25', discountPercent: 25, isActive: false }
+];
+
+// Sample orders for admin demo
+export const MOCK_ORDERS: Order[] = [
+    {
+        id: 'ORD-001',
+        userId: 'user123',
+        userEmail: 'john@example.com',
+        items: [
+            { productId: '1', productName: 'Ultimate UI Kit Pro', price: 2999, downloadUrl: 'https://example.com/downloads/ui-kit-pro.zip' },
+            { productId: '4', productName: 'The Startup Playbook', price: 1499, downloadUrl: 'https://example.com/downloads/startup-playbook.pdf' }
+        ],
+        total: 4048,
+        couponCode: 'SAVE10',
+        discount: 450,
+        status: 'completed',
+        createdAt: new Date('2024-12-13')
+    },
+    {
+        id: 'ORD-002',
+        userId: 'user456',
+        userEmail: 'jane@example.com',
+        items: [
+            { productId: '2', productName: 'React Mastery Course', price: 4999, downloadUrl: 'https://example.com/courses/react-mastery' }
+        ],
+        total: 4999,
+        discount: 0,
+        status: 'completed',
+        createdAt: new Date('2024-12-14')
+    }
+];
+
+// Categories for filtering
+export const CATEGORIES = [
+    'All',
+    'Design Templates',
+    'Online Courses',
+    'Templates',
+    'Ebooks',
+    'Software'
 ];
