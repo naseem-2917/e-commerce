@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { loginUser, loginWithGoogle, resetPassword } from '../services/auth';
 import { Mail, Lock, AlertCircle, Eye, EyeOff, Sparkles, ArrowLeft, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import MouseFollower from '../components/MouseFollower';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -57,11 +58,14 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-indigo-950 dark:to-slate-900 flex items-center justify-center p-4 transition-colors">
+            {/* Mouse Follow Effect */}
+            <MouseFollower color="blue" />
+
             {/* Background decoration */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl" />
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
+                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-400/20 dark:bg-blue-500/20 rounded-full blur-3xl" />
+                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-400/20 dark:bg-purple-500/20 rounded-full blur-3xl" />
             </div>
 
             <motion.div
@@ -75,7 +79,7 @@ export default function Login() {
                         <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
                             <Sparkles size={24} className="text-white" />
                         </div>
-                        <span className="text-3xl font-bold text-white">NAS</span>
+                        <span className="text-3xl font-bold text-slate-900 dark:text-white">NAS</span>
                     </Link>
                 </div>
 
@@ -250,9 +254,9 @@ export default function Login() {
                     </AnimatePresence>
                 </div>
 
-                <p className="mt-6 text-center text-slate-400 text-sm">
+                <p className="mt-6 text-center text-slate-600 dark:text-slate-400 text-sm">
                     Don't have an account?{' '}
-                    <Link to="/signup" className="text-blue-400 hover:text-blue-300 font-medium">
+                    <Link to="/signup" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
                         Create account
                     </Link>
                 </p>

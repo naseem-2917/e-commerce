@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Menu, X, Sun, Moon, User, LogOut, Shield, Sparkles } from 'lucide-react';
+import { Link, NavLink } from 'react-router-dom';
+import { ShoppingCart, Menu, X, Sun, Moon, Shield, Sparkles } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -9,29 +9,30 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const { items } = useCart();
-    const { user, signOut } = useAuth();
+    const { user } = useAuth();
     const { theme, toggleTheme } = useTheme();
-    const navigate = useNavigate();
 
     const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
-
-    const handleSignOut = async () => {
-        await signOut();
-        navigate('/');
-        setIsOpen(false);
-    };
 
     const navLinks = [
         { to: '/', label: 'Home' },
         { to: '/shop', label: 'Products' },
     ];
 
+    // Get user initials for avatar fallback
+    const getUserInitials = () => {
+        if (user?.displayName) {
+            return user.displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        }
+        return user?.email?.[0]?.toUpperCase() || 'U';
+    };
+
     return (
-        <nav className="fixed w-full top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800">
+        <nav className="fixed w-full top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-16">
-                    {/* Logo */}
-                    <Link to="/" className="flex items-center gap-2">
+                <div className="flex items-center h-16">
+                    {/* Logo - Left */}
+                    <Link to="/" className="flex items-center gap-2 flex-shrink-0">
                         <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
                             <Sparkles size={22} className="text-white" />
                         </div>
@@ -40,27 +41,29 @@ export default function Navbar() {
                         </span>
                     </Link>
 
-                    {/* Desktop Nav */}
-                    <div className="hidden md:flex items-center gap-8">
-                        {navLinks.map(link => (
-                            <NavLink
-                                key={link.to}
-                                to={link.to}
-                                className={({ isActive }) => `
-                                    font-medium transition-colors
-                                    ${isActive
-                                        ? 'text-blue-600 dark:text-blue-400'
-                                        : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                                    }
-                                `}
-                            >
-                                {link.label}
-                            </NavLink>
-                        ))}
+                    {/* Center Nav Links - Absolute Center */}
+                    <div className="hidden md:flex flex-1 justify-center">
+                        <div className="flex items-center gap-2">
+                            {navLinks.map(link => (
+                                <NavLink
+                                    key={link.to}
+                                    to={link.to}
+                                    className={({ isActive }) => `
+                                        font-medium transition-all px-4 py-2 rounded-lg
+                                        ${isActive
+                                            ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30'
+                                            : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                                        }
+                                    `}
+                                >
+                                    {link.label}
+                                </NavLink>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Right Section */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 ml-auto md:ml-0">
                         {/* Theme Toggle */}
                         <button
                             onClick={toggleTheme}
@@ -91,16 +94,28 @@ export default function Navbar() {
                             )}
                         </Link>
 
-                        {/* User Menu (Desktop) */}
+                        {/* User Menu (Desktop) - No Sign Out here */}
                         <div className="hidden md:flex items-center gap-2">
                             {user ? (
                                 <>
                                     <Link
                                         to="/profile"
-                                        className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300"
+                                        className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                                     >
-                                        <User size={18} />
-                                        <span className="text-sm font-medium">{user.displayName || 'Profile'}</span>
+                                        {user.photoURL ? (
+                                            <img
+                                                src={user.photoURL}
+                                                alt={user.displayName || 'User'}
+                                                className="w-8 h-8 rounded-full object-cover border-2 border-slate-200 dark:border-slate-700"
+                                            />
+                                        ) : (
+                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+                                                {getUserInitials()}
+                                            </div>
+                                        )}
+                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                            {user.displayName?.split(' ')[0] || 'Profile'}
+                                        </span>
                                     </Link>
                                     {user.role === 'admin' && (
                                         <Link
@@ -111,13 +126,6 @@ export default function Navbar() {
                                             <Shield size={18} />
                                         </Link>
                                     )}
-                                    <button
-                                        onClick={handleSignOut}
-                                        className="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 transition-colors"
-                                        title="Sign Out"
-                                    >
-                                        <LogOut size={18} />
-                                    </button>
                                 </>
                             ) : (
                                 <Link
@@ -151,7 +159,7 @@ export default function Navbar() {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="md:hidden bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800"
+                        className="md:hidden bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700"
                     >
                         <div className="px-4 py-4 space-y-2">
                             {navLinks.map(link => (
@@ -162,7 +170,7 @@ export default function Navbar() {
                                     className={({ isActive }) => `
                                         block px-4 py-3 rounded-xl font-medium transition-colors
                                         ${isActive
-                                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                                            ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
                                             : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                                         }
                                     `}
@@ -171,7 +179,7 @@ export default function Navbar() {
                                 </NavLink>
                             ))}
 
-                            <hr className="my-2 border-slate-200 dark:border-slate-800" />
+                            <hr className="my-2 border-slate-200 dark:border-slate-700" />
 
                             {user ? (
                                 <>
@@ -180,7 +188,17 @@ export default function Navbar() {
                                         onClick={() => setIsOpen(false)}
                                         className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                                     >
-                                        <User size={18} />
+                                        {user.photoURL ? (
+                                            <img
+                                                src={user.photoURL}
+                                                alt={user.displayName || 'User'}
+                                                className="w-8 h-8 rounded-full object-cover border-2 border-slate-200 dark:border-slate-700"
+                                            />
+                                        ) : (
+                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+                                                {getUserInitials()}
+                                            </div>
+                                        )}
                                         My Profile
                                     </Link>
                                     {user.role === 'admin' && (
@@ -193,13 +211,6 @@ export default function Navbar() {
                                             Admin Panel
                                         </Link>
                                     )}
-                                    <button
-                                        onClick={handleSignOut}
-                                        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                    >
-                                        <LogOut size={18} />
-                                        Sign Out
-                                    </button>
                                 </>
                             ) : (
                                 <Link

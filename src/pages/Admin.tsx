@@ -85,7 +85,7 @@ export default function Admin() {
     // Not logged in - show login prompt
     if (!user) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+            <div className="min-h-screen bg-gradient-to-br from-slate-100 via-amber-50 to-orange-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center p-4 transition-colors">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -94,8 +94,8 @@ export default function Admin() {
                     <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                         <Shield size={32} className="text-white" />
                     </div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Admin Panel</h1>
-                    <p className="text-slate-400 mb-8">Please login first to access admin panel</p>
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Admin Panel</h1>
+                    <p className="text-slate-600 dark:text-slate-400 mb-8">Please login first to access admin panel</p>
 
                     <Link
                         to="/login"
@@ -111,7 +111,7 @@ export default function Admin() {
     // Logged in but not admin - show secret code prompt
     if (user.role !== 'admin') {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+            <div className="min-h-screen bg-gradient-to-br from-slate-100 via-amber-50 to-orange-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center p-4 transition-colors">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -121,18 +121,18 @@ export default function Admin() {
                         <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                             <Shield size={32} className="text-white" />
                         </div>
-                        <h1 className="text-3xl font-bold text-white mb-2">Admin Panel</h1>
-                        <p className="text-slate-400">Enter admin secret code to access</p>
+                        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Admin Panel</h1>
+                        <p className="text-slate-600 dark:text-slate-400">Enter admin secret code to access</p>
                     </div>
 
                     {/* Current User Info */}
-                    <div className="bg-slate-800/50 rounded-xl p-4 mb-6 flex items-center gap-3">
+                    <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl p-4 mb-6 flex items-center gap-3">
                         <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
                             <User size={20} className="text-white" />
                         </div>
                         <div>
-                            <p className="text-white font-medium">{user.displayName || 'User'}</p>
-                            <p className="text-slate-400 text-sm">{user.email}</p>
+                            <p className="text-slate-900 dark:text-white font-medium">{user.displayName || 'User'}</p>
+                            <p className="text-slate-600 dark:text-slate-400 text-sm">{user.email}</p>
                         </div>
                     </div>
 
@@ -318,8 +318,8 @@ export default function Admin() {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as typeof activeTab)}
                         className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${activeTab === tab.id
-                                ? 'bg-slate-900 dark:bg-blue-600 text-white'
-                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                            ? 'bg-slate-900 dark:bg-blue-600 text-white'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                             }`}
                     >
                         <tab.icon size={18} />
@@ -365,8 +365,8 @@ export default function Admin() {
                                             <button
                                                 onClick={() => handleToggleProduct(p.id)}
                                                 className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${p.isActive
-                                                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                                                        : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                                                    : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
                                                     }`}
                                             >
                                                 {p.isActive ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}
@@ -435,8 +435,8 @@ export default function Admin() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-3 py-1 rounded-full text-xs font-medium ${o.status === 'completed'
-                                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                                                    : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                                                : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
                                                 }`}>
                                                 {o.status}
                                             </span>
@@ -473,8 +473,8 @@ export default function Admin() {
                                             <button
                                                 onClick={() => handleToggleCoupon(c.code)}
                                                 className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${c.isActive
-                                                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                                                        : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                                                    : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
                                                     }`}
                                             >
                                                 {c.isActive ? <Check size={14} /> : <X size={14} />}

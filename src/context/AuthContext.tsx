@@ -7,6 +7,7 @@ interface UserData {
     uid: string;
     email: string | null;
     displayName: string | null;
+    photoURL: string | null;
     role: 'user' | 'admin';
 }
 
@@ -35,6 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         uid: firebaseUser.uid,
                         email: firebaseUser.email,
                         displayName: firebaseUser.displayName,
+                        photoURL: firebaseUser.photoURL,
                         role: userData?.role || 'user', // Role comes from Firestore
                     });
                 } else {

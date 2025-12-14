@@ -4,6 +4,7 @@ import { CartProvider } from './context/CartContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Layout from './components/Layout';
 import ChatBot from './components/ChatBot';
+import ScrollToTop from './components/ScrollToTop';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Home from './pages/Home';
@@ -25,6 +26,7 @@ function App() {
             <CartProvider>
                 <ThemeProvider>
                     <Router basename="/">
+                        <ScrollToTop />
                         <div className="relative">
                             <Routes>
                                 <Route path="/login" element={<Login />} />

@@ -4,13 +4,45 @@
 
 /* Custom Animations */
 @keyframes gradient {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
 }
 
 .animate-gradient {
     background-size: 200% 200%;
     animation: gradient 3s ease infinite;
+}
+
+/* Spin animation for rotating borders */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes border-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin-slow {
+    animation: spin 3s linear infinite;
 }
 
 /* Smooth Scrollbar */

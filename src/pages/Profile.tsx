@@ -1,13 +1,20 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Camera, Mail, User, Shield, LogOut, Package, Settings, ChevronRight } from 'lucide-react';
+import { Camera, Mail, User, Shield, LogOut, Package, Settings, ChevronRight, Pencil, Check, X, Link as LinkIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { updateProfile } from 'firebase/auth';
+import { auth } from '../services/firebase';
 
 export default function Profile() {
     const { user, signOut, loading } = useAuth();
     const navigate = useNavigate();
     const [imageError, setImageError] = useState(false);
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [isEditingPhoto, setIsEditingPhoto] = useState(false);
+    const [newName, setNewName] = useState('');
+    const [newPhotoURL, setNewPhotoURL] = useState('');
+    const [updating, setUpdating] = useState(false);
 
     if (loading) {
         return (
@@ -48,8 +55,36 @@ export default function Profile() {
         return user.email?.charAt(0).toUpperCase() || 'U';
     };
 
-    // Construct photo URL from Firebase Auth
-    const photoURL = user.email ? `https://www.gravatar.com/avatar/${user.email}?d=404` : null;
+    // Handle name update
+    const handleUpdateName = async () => {
+        if (!newName.trim() || !auth.currentUser) return;
+
+        setUpdating(true);
+        try {
+            await updateProfile(auth.currentUser, { displayName: newName.trim() });
+            setIsEditingName(false);
+            window.location.reload();
+        } catch (error) {
+            console.error('Error updating name:', error);
+        }
+        setUpdating(false);
+    };
+
+    // Handle photo URL update
+    const handleUpdatePhoto = async () => {
+        if (!newPhotoURL.trim() || !auth.currentUser) return;
+
+        setUpdating(true);
+        try {
+            await updateProfile(auth.currentUser, { photoURL: newPhotoURL.trim() });
+            setIsEditingPhoto(false);
+            setImageError(false);
+            window.location.reload();
+        } catch (error) {
+            console.error('Error updating photo:', error);
+        }
+        setUpdating(false);
+    };
 
     return (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -66,12 +101,12 @@ export default function Profile() {
                 </div>
 
                 <div className="relative flex flex-col sm:flex-row items-center gap-6">
-                    {/* Avatar */}
+                    {/* Avatar with Edit Button */}
                     <div className="relative group">
                         <div className="w-28 h-28 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden border-4 border-white/30">
-                            {photoURL && !imageError ? (
+                            {user.photoURL && !imageError ? (
                                 <img
-                                    src={photoURL}
+                                    src={user.photoURL}
                                     alt={user.displayName || 'User'}
                                     className="w-full h-full object-cover"
                                     onError={() => setImageError(true)}
@@ -80,14 +115,59 @@ export default function Profile() {
                                 <span className="text-4xl font-bold text-white">{getInitials()}</span>
                             )}
                         </div>
-                        <button className="absolute bottom-0 right-0 w-10 h-10 bg-white text-blue-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
+                        <button
+                            onClick={() => {
+                                setNewPhotoURL(user.photoURL || '');
+                                setIsEditingPhoto(true);
+                            }}
+                            className="absolute bottom-0 right-0 w-10 h-10 bg-white text-blue-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                            title="Change Photo"
+                        >
                             <Camera size={18} />
                         </button>
                     </div>
 
                     {/* User Info */}
                     <div className="text-center sm:text-left flex-1">
-                        <h1 className="text-3xl font-bold mb-1">{user.displayName || 'User'}</h1>
+                        {isEditingName ? (
+                            <div className="flex items-center gap-2 mb-1">
+                                <input
+                                    type="text"
+                                    value={newName}
+                                    onChange={(e) => setNewName(e.target.value)}
+                                    placeholder="Enter new name"
+                                    className="px-3 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
+                                    autoFocus
+                                />
+                                <button
+                                    onClick={handleUpdateName}
+                                    disabled={updating}
+                                    className="p-2 bg-green-500 rounded-lg hover:bg-green-600 transition-colors"
+                                >
+                                    <Check size={18} />
+                                </button>
+                                <button
+                                    onClick={() => setIsEditingName(false)}
+                                    className="p-2 bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
+                                >
+                                    <X size={18} />
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2 mb-1">
+                                <h1 className="text-3xl font-bold">{user.displayName || 'User'}</h1>
+                                <button
+                                    onClick={() => {
+                                        setNewName(user.displayName || '');
+                                        setIsEditingName(true);
+                                    }}
+                                    className="p-2 rounded-lg hover:bg-white/20 transition-colors"
+                                    title="Edit Name"
+                                >
+                                    <Pencil size={16} />
+                                </button>
+                            </div>
+                        )}
                         <p className="text-blue-100 flex items-center justify-center sm:justify-start gap-2">
                             <Mail size={16} /> {user.email}
                         </p>
@@ -98,6 +178,40 @@ export default function Profile() {
                         )}
                     </div>
                 </div>
+
+                {/* Photo URL Edit Modal */}
+                {isEditingPhoto && (
+                    <div className="mt-6 p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                        <div className="flex items-center gap-2 mb-2">
+                            <LinkIcon size={16} />
+                            <span className="font-medium">Update Profile Photo</span>
+                        </div>
+                        <p className="text-sm text-blue-100 mb-3">Paste an image URL (e.g., from Google Photos, Imgur, etc.)</p>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="url"
+                                value={newPhotoURL}
+                                onChange={(e) => setNewPhotoURL(e.target.value)}
+                                placeholder="https://example.com/photo.jpg"
+                                className="flex-1 px-4 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
+                                autoFocus
+                            />
+                            <button
+                                onClick={handleUpdatePhoto}
+                                disabled={updating || !newPhotoURL.trim()}
+                                className="px-4 py-2 bg-green-500 rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 flex items-center gap-2"
+                            >
+                                <Check size={18} /> Save
+                            </button>
+                            <button
+                                onClick={() => setIsEditingPhoto(false)}
+                                className="px-4 py-2 bg-red-500 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
+                            >
+                                <X size={18} /> Cancel
+                            </button>
+                        </div>
+                    </div>
+                )}
             </motion.div>
 
             {/* Quick Actions */}
