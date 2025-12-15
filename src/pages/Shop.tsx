@@ -1,19 +1,28 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, SlidersHorizontal, X, Sparkles } from 'lucide-react';
+import { SlidersHorizontal, X } from 'lucide-react';
 import { MOCK_PRODUCTS, CATEGORIES } from '../data/mock';
 import ProductCard from '../components/ProductCard';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Shop() {
     const [searchParams, setSearchParams] = useSearchParams();
-    const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
     const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'All');
     const [priceRange, setPriceRange] = useState<'all' | 'low' | 'mid' | 'high'>(
         (searchParams.get('price') as 'all' | 'low' | 'mid' | 'high') || 'all'
     );
     const [showFilters, setShowFilters] = useState(false);
-    const [isSearching, setIsSearching] = useState(false);
+
+    // Get search query from URL (set by Navbar)
+    const searchQuery = searchParams.get('q') || '';
+
+    // Sync category and price with URL
+    useEffect(() => {
+        const category = searchParams.get('category') || 'All';
+        const price = (searchParams.get('price') as 'all' | 'low' | 'mid' | 'high') || 'all';
+        setSelectedCategory(category);
+        setPriceRange(price);
+    }, [searchParams]);
 
     // Filter products
     const filteredProducts = useMemo(() => {
@@ -34,7 +43,7 @@ export default function Shop() {
             });
         }
 
-        // Search filter (simple local search)
+        // Search filter (from URL query)
         if (searchQuery.trim()) {
             const query = searchQuery.toLowerCase();
             products = products.filter(p =>
@@ -48,22 +57,33 @@ export default function Shop() {
         return products;
     }, [selectedCategory, priceRange, searchQuery]);
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSearching(true);
-        // Simulate AI search delay for effect
-        setTimeout(() => {
-            setIsSearching(false);
-            const params = new URLSearchParams();
-            if (searchQuery) params.set('q', searchQuery);
-            if (selectedCategory !== 'All') params.set('category', selectedCategory);
-            if (priceRange !== 'all') params.set('price', priceRange);
-            setSearchParams(params);
-        }, 300);
+    // Update URL when filters change
+    const updateFilters = (category: string, price: string) => {
+        const params = new URLSearchParams(searchParams);
+        if (category !== 'All') {
+            params.set('category', category);
+        } else {
+            params.delete('category');
+        }
+        if (price !== 'all') {
+            params.set('price', price);
+        } else {
+            params.delete('price');
+        }
+        setSearchParams(params);
+    };
+
+    const handleCategoryChange = (category: string) => {
+        setSelectedCategory(category);
+        updateFilters(category, priceRange);
+    };
+
+    const handlePriceChange = (price: 'all' | 'low' | 'mid' | 'high') => {
+        setPriceRange(price);
+        updateFilters(selectedCategory, price);
     };
 
     const clearFilters = () => {
-        setSearchQuery('');
         setSelectedCategory('All');
         setPriceRange('all');
         setSearchParams({});
@@ -78,26 +98,10 @@ export default function Shop() {
                 <div>
                     <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Digital Products</h1>
                     <p className="text-slate-500 dark:text-slate-400 mt-1">
-                        {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} available
+                        {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
+                        {searchQuery && <span className="text-blue-600 dark:text-blue-400"> for "{searchQuery}"</span>}
                     </p>
                 </div>
-
-                {/* Search Bar */}
-                <form onSubmit={handleSearch} className="flex-1 max-w-md">
-                    <div className="relative">
-                        <input
-                            type="text"
-                            placeholder="Search products... (AI-powered)"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-slate-900 dark:text-white placeholder:text-slate-400"
-                        />
-                        <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                        {isSearching && (
-                            <Sparkles size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-500 animate-spin" />
-                        )}
-                    </div>
-                </form>
 
                 {/* Filter Toggle (Mobile) */}
                 <button
@@ -128,10 +132,10 @@ export default function Shop() {
                                     {CATEGORIES.map(cat => (
                                         <button
                                             key={cat}
-                                            onClick={() => setSelectedCategory(cat)}
+                                            onClick={() => handleCategoryChange(cat)}
                                             className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${selectedCategory === cat
-                                                    ? 'bg-blue-600 text-white'
-                                                    : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600'
+                                                ? 'bg-blue-600 text-white'
+                                                : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600'
                                                 }`}
                                         >
                                             {cat}
@@ -154,10 +158,10 @@ export default function Shop() {
                                     ].map(option => (
                                         <button
                                             key={option.value}
-                                            onClick={() => setPriceRange(option.value as typeof priceRange)}
+                                            onClick={() => handlePriceChange(option.value as typeof priceRange)}
                                             className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${priceRange === option.value
-                                                    ? 'bg-blue-600 text-white'
-                                                    : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600'
+                                                ? 'bg-blue-600 text-white'
+                                                : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600'
                                                 }`}
                                         >
                                             {option.label}

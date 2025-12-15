@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
-import { ShoppingCart, Menu, X, Sun, Moon, Shield, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { ShoppingCart, Menu, X, Sun, Moon, Shield, Sparkles, Search } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -8,9 +8,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [showSearch, setShowSearch] = useState(false);
     const { items } = useCart();
     const { user } = useAuth();
     const { theme, toggleTheme } = useTheme();
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -27,6 +31,44 @@ export default function Navbar() {
         return user?.email?.[0]?.toUpperCase() || 'U';
     };
 
+    // Sync search query with URL params when on Shop page
+    useEffect(() => {
+        if (location.pathname === '/shop') {
+            const params = new URLSearchParams(location.search);
+            const q = params.get('q') || '';
+            setSearchQuery(q);
+        }
+    }, [location]);
+
+    // Handle search - navigate to shop with query
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        const query = searchQuery.trim();
+        if (query) {
+            navigate(`/shop?q=${encodeURIComponent(query)}`);
+        } else {
+            navigate('/shop');
+        }
+        setShowSearch(false);
+        setIsOpen(false);
+    };
+
+    // Handle input change - if on shop page, update URL in realtime
+    const handleSearchChange = (value: string) => {
+        setSearchQuery(value);
+
+        // Real-time search on Shop page
+        if (location.pathname === '/shop') {
+            const params = new URLSearchParams(location.search);
+            if (value.trim()) {
+                params.set('q', value.trim());
+            } else {
+                params.delete('q');
+            }
+            navigate(`/shop?${params.toString()}`, { replace: true });
+        }
+    };
+
     return (
         <nav className="fixed w-full top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -41,8 +83,8 @@ export default function Navbar() {
                         </span>
                     </Link>
 
-                    {/* Center Nav Links - Absolute Center */}
-                    <div className="hidden md:flex flex-1 justify-center">
+                    {/* Center - Nav Links + Search */}
+                    <div className="hidden md:flex flex-1 justify-center items-center gap-4">
                         <div className="flex items-center gap-2">
                             {navLinks.map(link => (
                                 <NavLink
@@ -60,10 +102,30 @@ export default function Navbar() {
                                 </NavLink>
                             ))}
                         </div>
+
+                        {/* Search Bar - Desktop */}
+                        <form onSubmit={handleSearch} className="relative">
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => handleSearchChange(e.target.value)}
+                                placeholder="Search products..."
+                                className="w-64 pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-blue-500 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                            />
+                            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        </form>
                     </div>
 
                     {/* Right Section */}
                     <div className="flex items-center gap-2 ml-auto md:ml-0">
+                        {/* Mobile Search Toggle */}
+                        <button
+                            onClick={() => setShowSearch(!showSearch)}
+                            className="md:hidden p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        >
+                            <Search size={20} className="text-slate-600 dark:text-slate-300" />
+                        </button>
+
                         {/* Theme Toggle */}
                         <button
                             onClick={toggleTheme}
@@ -94,7 +156,7 @@ export default function Navbar() {
                             )}
                         </Link>
 
-                        {/* User Menu (Desktop) - No Sign Out here */}
+                        {/* User Menu (Desktop) */}
                         <div className="hidden md:flex items-center gap-2">
                             {user ? (
                                 <>
@@ -150,6 +212,30 @@ export default function Navbar() {
                         </button>
                     </div>
                 </div>
+
+                {/* Mobile Search Bar */}
+                <AnimatePresence>
+                    {showSearch && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="md:hidden pb-4"
+                        >
+                            <form onSubmit={handleSearch} className="relative">
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => handleSearchChange(e.target.value)}
+                                    placeholder="Search products..."
+                                    autoFocus
+                                    className="w-full pl-10 pr-4 py-3 bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-blue-500 rounded-xl text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                                />
+                                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                            </form>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
 
             {/* Mobile Menu */}

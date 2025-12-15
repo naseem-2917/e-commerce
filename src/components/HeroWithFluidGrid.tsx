@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import { motion, useSpring, useMotionValue, useTransform } from 'framer-motion';
+import { motion, useSpring, useMotionValue } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, User } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
@@ -44,10 +44,15 @@ export default function HeroWithFluidGrid() {
     const { theme } = useTheme();
     const { user } = useAuth();
     const [activeCells, setActiveCells] = useState<Set<number>>(new Set());
+    const [isMouseInside, setIsMouseInside] = useState(false);
 
     // Mouse position motion values
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
+
+    // Idle floating animation values
+    const idleX = useMotionValue(0);
+    const idleY = useMotionValue(0);
 
     // Spring physics for fluid movement
     const springConfig = { damping: 25, stiffness: 120, mass: 0.5 };
@@ -64,24 +69,47 @@ export default function HeroWithFluidGrid() {
     const cursorX3 = useSpring(mouseX, springConfigSlowest);
     const cursorY3 = useSpring(mouseY, springConfigSlowest);
 
-    // Scale effect based on velocity
-    const scale = useTransform(
-        [cursorX, cursorY],
-        ([x, y]) => {
-            const velocity = Math.sqrt(
-                Math.pow(Number(x) - mouseX.get(), 2) +
-                Math.pow(Number(y) - mouseY.get(), 2)
-            );
-            return 1 + Math.min(velocity * 0.001, 0.3);
-        }
-    );
+    // Idle floating animation when mouse is not active
+    useEffect(() => {
+        if (isMouseInside) return;
+
+        const containerWidth = containerRef.current?.offsetWidth || 1200;
+        const containerHeight = containerRef.current?.offsetHeight || 800;
+        const centerX = containerWidth / 2;
+        const centerY = containerHeight / 2;
+
+        let angle = 0;
+        const radius = 150;
+        const speed = 0.005;
+
+        const animate = () => {
+            angle += speed;
+            const x = centerX + Math.sin(angle) * radius + Math.sin(angle * 0.7) * 50;
+            const y = centerY + Math.cos(angle * 0.8) * radius * 0.6 + Math.cos(angle * 1.2) * 30;
+
+            idleX.set(x);
+            idleY.set(y);
+            mouseX.set(x);
+            mouseY.set(y);
+        };
+
+        const interval = setInterval(animate, 16);
+        return () => clearInterval(interval);
+    }, [isMouseInside, idleX, idleY, mouseX, mouseY]);
+
+    // Initialize idle position
+    useEffect(() => {
+        const containerWidth = containerRef.current?.offsetWidth || 1200;
+        const containerHeight = containerRef.current?.offsetHeight || 800;
+        mouseX.set(containerWidth / 2);
+        mouseY.set(containerHeight / 2);
+    }, [mouseX, mouseY]);
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (!containerRef.current) return;
 
             const rect = containerRef.current.getBoundingClientRect();
-            // Fix: Use correct offset calculation
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
@@ -97,7 +125,6 @@ export default function HeroWithFluidGrid() {
 
             const newActiveCells = new Set<number>();
 
-            // Activate cells in a radius around cursor
             for (let dx = -2; dx <= 2; dx++) {
                 for (let dy = -2; dy <= 2; dy++) {
                     const nx = cellX + dx;
@@ -114,14 +141,24 @@ export default function HeroWithFluidGrid() {
             setActiveCells(newActiveCells);
         };
 
+        const handleMouseEnter = () => setIsMouseInside(true);
+        const handleMouseLeave = () => {
+            setIsMouseInside(false);
+            setActiveCells(new Set());
+        };
+
         const container = containerRef.current;
         if (container) {
             container.addEventListener('mousemove', handleMouseMove);
+            container.addEventListener('mouseenter', handleMouseEnter);
+            container.addEventListener('mouseleave', handleMouseLeave);
         }
 
         return () => {
             if (container) {
                 container.removeEventListener('mousemove', handleMouseMove);
+                container.removeEventListener('mouseenter', handleMouseEnter);
+                container.removeEventListener('mouseleave', handleMouseLeave);
             }
         };
     }, [mouseX, mouseY]);
@@ -164,7 +201,6 @@ export default function HeroWithFluidGrid() {
                     top: cursorY,
                     x: '-50%',
                     y: '-50%',
-                    scale,
                 }}
             >
                 <div
